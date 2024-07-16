@@ -1,51 +1,41 @@
-#include <stdio.h>
+#include<stdio.h>
 
-int copyBinaryFile(FILE *source, FILE *destination) {
-    const size_t BUFFER_SIZE = 1024;
-    unsigned char buffer[BUFFER_SIZE];
-    size_t bytesRead;
-
-    while ((bytesRead = fread(buffer, 1, BUFFER_SIZE, source)) > 0) {
-        if (fwrite(buffer, 1, bytesRead, destination) != bytesRead) {
-            return 0; // Write error
+int copy(FILE *s, FILE *d) {
+    int n;
+    while (fread(&n, sizeof(int), 1, s) == 1) {
+        if (fwrite(&n, sizeof(int), 1, d) != 1) {
+            return 0; // error writing to destination file
         }
     }
-
-    if (ferror(source) || ferror(destination)) {
-        return 0; // Read or write error
-    }
-
-    return 1; // Success
+    return 1;
 }
 
 int main() {
-    char sourceFileName[100], destinationFileName[100];
-    FILE *sourceFile, *destinationFile;
-
-    printf("Enter source file name: ");
-    scanf("%s", sourceFileName);
-
-    printf("Enter destination file name: ");
-    scanf("%s", destinationFileName);
-
-    sourceFile = fopen(sourceFileName, "rb");
-    if (sourceFile == NULL) {
-        printf("Error opening source file.\n");
+    FILE *s;
+    FILE *d;
+    char sf[100], df[100];
+    printf("Enter the source and destination file: ");
+    scanf("%s %s", sf, df);
+    s = fopen(sf, "r");
+    if (s == NULL) {
+        printf("Error opening source file\n");
         return 1;
     }
-
-    destinationFile = fopen(destinationFileName, "wb");
-    if (destinationFile == NULL) {
-        printf("Error opening destination file.\n");
-        fclose(sourceFile);
+    d = fopen(df, "w");
+    if (d == NULL) {
+        printf("Error opening destination file\n");
+        fclose(s);
         return 1;
     }
-
-    if (copyBinaryFile(sourceFile, destinationFile)) {
-        printf("File copied successfully.\n");
+    if (copy(s, d)) {
+        printf("Text transferred\n");
     } else {
-        printf("Error copying file.\n");
+        printf("Error transferring text\n");
     }
+    fclose(s);
+    fclose(d);
+    return 0;
+}
 
     fclose(sourceFile);
     fclose(destinationFile);
